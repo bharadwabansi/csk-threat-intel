@@ -8,7 +8,6 @@ Built as part of the **Seconize Internship Screening Assignment**.
 
 ## 📸 Screenshots
 
-> _Add your screenshots here after taking them_
 
 | Dashboard | Alert Detail | STIX Viewer |
 |-----------|-------------|-------------|
@@ -18,7 +17,6 @@ Built as part of the **Seconize Internship Screening Assignment**.
 
 ## 🎥 Demo Video
 
-> _Record a short screen recording of the app and upload it to YouTube or Google Drive, then paste the link below_
 
 [![Demo Video](https://img.shields.io/badge/Watch-Demo%20Video-red?style=for-the-badge&logo=youtube)](https://drive.google.com/file/d/1tllQD4Rox8-wbt9fdzEhYDXPjudA34L_/view?usp=sharing)
 
