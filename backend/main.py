@@ -15,7 +15,7 @@ from stix_converter import generate_stix_bundle
 
 load_dotenv()
 
-MAX_ALERTS_PER_CRAWL = 10   # max new alerts to process per crawl
+MAX_ALERTS_PER_CRAWL = 10   # max alerts to process per crawl
 DELAY_BETWEEN_CALLS  = 5    # seconds to wait between calls
 
 app = FastAPI(title="CSK Threat Intelligence Portal", version="1.0.0")
