@@ -16,9 +16,8 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
     objects    = []
     refs       = []
 
-    # ------------------------------------------------------------------ #
+    
     # 1. IDENTITY — the source organization (CSK)
-    # ------------------------------------------------------------------ #
     identity = stix2.Identity(
         id             = "identity--" + str(uuid.uuid5(uuid.NAMESPACE_DNS, "csk.gov.in")),
         name           = "Cyber Swachhta Kendra (CSK)",
@@ -27,9 +26,9 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
     )
     objects.append(identity)
 
-    # ------------------------------------------------------------------ #
+
     # 2. VULNERABILITY objects — one per CVE
-    # ------------------------------------------------------------------ #
+
     cves = enriched.get("cves", [])
     for cve in cves:
         cve = cve.strip()
@@ -51,9 +50,9 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
         objects.append(vuln)
         refs.append(vuln.id)
 
-    # ------------------------------------------------------------------ #
+  
     # 3. MALWARE object — if threat type is malware related
-    # ------------------------------------------------------------------ #
+
     threat_type = enriched.get("threat_type", "").lower()
     malware_keywords = ["malware", "ransomware", "trojan", "virus", "worm", "spyware", "botnet"]
 
@@ -71,9 +70,8 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
         objects.append(malware)
         refs.append(malware.id)
 
-    # ------------------------------------------------------------------ #
     # 4. ATTACK PATTERN — MITRE style
-    # ------------------------------------------------------------------ #
+    
     for pattern in enriched.get("attack_patterns", []):
         if not pattern.strip():
             continue
@@ -86,9 +84,9 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
         objects.append(ap)
         refs.append(ap.id)
 
-    # ------------------------------------------------------------------ #
+    
     # 5. INDICATORS — IPs, Domains, URLs, Hashes
-    # ------------------------------------------------------------------ #
+
     iocs = enriched.get("iocs", {})
 
     for ip in iocs.get("ips", []):
@@ -148,9 +146,8 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
         except Exception:
             pass
 
-    # ------------------------------------------------------------------ #
     # 6. REPORT — wraps everything together
-    # ------------------------------------------------------------------ #
+
     report = stix2.Report(
         id          = "report--" + str(uuid.uuid5(uuid.NAMESPACE_DNS, alert.get("alert_id", str(uuid.uuid4())))),
         name        = alert.get("title", "CSK Alert"),
@@ -172,9 +169,9 @@ def generate_stix_bundle(alert: dict, enriched: dict) -> str:
     )
     objects.append(report)
 
-    # ------------------------------------------------------------------ #
+  
     # 7. Build the BUNDLE
-    # ------------------------------------------------------------------ #
+    
     bundle = stix2.Bundle(objects=objects, allow_custom=True)
     return bundle.serialize(pretty=True)
 

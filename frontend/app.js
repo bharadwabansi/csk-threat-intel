@@ -4,9 +4,8 @@ let currentPage  = 0;
 let currentStix  = "";
 const PAGE_SIZE  = 20;
 
-// ------------------------------------------------------------------ //
+
 // INIT
-// ------------------------------------------------------------------ //
 document.addEventListener("DOMContentLoaded", () => {
     checkBackend();
     loadStats();
@@ -19,9 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// ------------------------------------------------------------------ //
 // BACKEND HEALTH CHECK
-// ------------------------------------------------------------------ //
+
 async function checkBackend() {
     try {
         const res = await fetch(`${API}/`);
@@ -36,9 +34,8 @@ async function checkBackend() {
 }
 
 
-// ------------------------------------------------------------------ //
+
 // STATS
-// ------------------------------------------------------------------ //
 async function loadStats() {
     try {
         const res  = await fetch(`${API}/api/stats`);
@@ -54,9 +51,9 @@ async function loadStats() {
 }
 
 
-// ------------------------------------------------------------------ //
+
 // LOAD ALERTS
-// ------------------------------------------------------------------ //
+
 async function loadAlerts(page = 0) {
     currentPage = page;
     const search   = document.getElementById("search-input").value.trim();
@@ -87,9 +84,9 @@ async function loadAlerts(page = 0) {
 }
 
 
-// ------------------------------------------------------------------ //
+
 // RENDER ALERTS
-// ------------------------------------------------------------------ //
+
 function renderAlerts(alerts) {
     const container = document.getElementById("alerts-container");
 
@@ -120,9 +117,8 @@ function renderAlerts(alerts) {
 }
 
 
-// ------------------------------------------------------------------ //
 // PAGINATION
-// ------------------------------------------------------------------ //
+
 function renderPagination(total, currentPage) {
     const totalPages = Math.ceil(total / PAGE_SIZE);
     const pagination = document.getElementById("pagination");
@@ -146,9 +142,7 @@ function renderPagination(total, currentPage) {
 }
 
 
-// ------------------------------------------------------------------ //
-// MODAL
-// ------------------------------------------------------------------ //
+
 async function openModal(alertId) {
     document.getElementById("modal-overlay").classList.add("active");
     document.getElementById("modal-title").textContent   = "Loading...";
@@ -214,30 +208,83 @@ function closeModalDirect() {
 }
 
 
-// ------------------------------------------------------------------ //
-// CRAWL
-// ------------------------------------------------------------------ //
-async function triggerCrawl() {
-    showToast("🕷️ Crawl started! This may take a minute...", false);
-    try {
-        const res  = await fetch(`${API}/api/crawl`, { method: "POST" });
-        const data = await res.json();
-        showToast("✅ " + data.message);
 
-        // Reload alerts after 5 seconds
-        setTimeout(() => {
-            loadAlerts();
-            loadStats();
-        }, 5000);
+// CRAWL
+
+async function triggerCrawl() {
+    showToast("🕷️ Crawl started! Fetching alerts...", false);
+
+    const btn = document.querySelector(".btn-crawl");
+    btn.disabled = true;
+    btn.textContent = "⏳ Crawling... (0/10)";
+
+    try {
+        await fetch(`${API}/api/crawl`, { method: "POST" });
+
+        let attempts     = 0;
+        let lastTotal    = parseInt(document.getElementById("stat-total").textContent) || 0;
+        let fetchedSoFar = 0;
+        const maxWait    = 36; // 36 x 5s = 3 minutes max wait
+
+        const interval = setInterval(async () => {
+            attempts++;
+
+            try {
+                const statsRes  = await fetch(`${API}/api/stats`);
+                const statsData = await statsRes.json();
+                const newTotal  = statsData.total;
+
+                // If new alerts came in since last check
+                if (newTotal > lastTotal) {
+                    const diff    = newTotal - lastTotal;
+                    fetchedSoFar += diff;
+                    lastTotal     = newTotal;
+
+                    // Update button counter
+                    btn.textContent = `⏳ Crawling... (${fetchedSoFar}/10)`;
+
+                    // Show live toast for each new batch
+                    showToast(`📥 ${fetchedSoFar}/10 alerts fetched...`, false);
+
+                    // Refresh alerts list immediately
+                    loadAlerts();
+                    loadStats();
+                }
+
+                // Stop when 10 fetched or timeout
+                if (fetchedSoFar >= 10 || attempts >= maxWait) {
+                    clearInterval(interval);
+                    btn.disabled    = false;
+                    btn.textContent = "🕷️ Crawl CSK";
+
+                    if (fetchedSoFar > 0) {
+                        showToast(`✅ Done! ${fetchedSoFar} new alerts fetched.`, false);
+                    } else {
+                        showToast("✅ Crawl finished! No new alerts found.", false);
+                    }
+
+                    // Final refresh
+                    loadAlerts();
+                    loadStats();
+                }
+
+            } catch {
+                // silently retry on network blip
+            }
+
+        }, 5000); // check every 5 seconds
+
     } catch {
         showToast("❌ Crawl failed. Is backend running?", true);
+        btn.disabled    = false;
+        btn.textContent = "🕷️ Crawl CSK";
     }
 }
 
 
-// ------------------------------------------------------------------ //
+
 // COPY STIX
-// ------------------------------------------------------------------ //
+
 function copyStix() {
     if (!currentStix) return;
     navigator.clipboard.writeText(currentStix)
@@ -246,9 +293,9 @@ function copyStix() {
 }
 
 
-// ------------------------------------------------------------------ //
+
 // HELPERS
-// ------------------------------------------------------------------ //
+
 function severityClass(severity) {
     if (!severity) return "unknown";
     return severity.toLowerCase();

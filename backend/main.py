@@ -16,7 +16,7 @@ from stix_converter import generate_stix_bundle
 load_dotenv()
 
 MAX_ALERTS_PER_CRAWL = 10   # max new alerts to process per crawl
-DELAY_BETWEEN_CALLS  = 5    # seconds to wait between Gemini calls
+DELAY_BETWEEN_CALLS  = 5    # seconds to wait between calls
 
 app = FastAPI(title="CSK Threat Intelligence Portal", version="1.0.0")
 
@@ -33,9 +33,7 @@ def startup():
     print("[main] Database initialized")
 
 
-# ------------------------------------------------------------------ #
 # ENDPOINTS
-# ------------------------------------------------------------------ #
 
 @app.get("/")
 def root():
@@ -72,7 +70,7 @@ def run_crawl_pipeline(db: Session):
         if not raw_content:
             continue
 
-        print(f"[pipeline] Calling Gemini for: {alert_id}")
+        print(f"[pipeline] Calling Groq for: {alert_id}")
 
         # AI enrichment
         enriched = enrich_alert(raw_content)
@@ -176,9 +174,8 @@ def get_stats(db: Session = Depends(get_db)):
     }
 
 
-# ------------------------------------------------------------------ #
 # HELPER
-# ------------------------------------------------------------------ #
+
 
 def _format_alert(alert: Alert, include_stix: bool = False) -> dict:
     data = {
