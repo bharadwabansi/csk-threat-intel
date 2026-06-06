@@ -1,8 +1,8 @@
 # 🛡️ CSK Threat Intelligence Portal
 
 > An AI-powered full-stack application that automatically crawls cybersecurity alerts from the **Cyber Swachhta Kendra (CSK)** portal, enriches them using **Groq AI (LLaMA 3.3 70B)**, converts them into structured **STIX 2.1** threat intelligence bundles, and presents them through a searchable web interface.
-
-Built as part of the **Seconize Internship Screening Assignment**.
+> 
+> Built as part of the **Seconize Internship Screening Assignment**.
 
 ---
 
@@ -158,8 +158,6 @@ playwright install chromium
 ```
 
 ### Step 4 — Configure environment
-```bash
-cp .env.example .env
 ```
 Open `.env` and add your Groq API key:
 ```
