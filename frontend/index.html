@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSK Threat Intelligence Portal</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            🛡️ <span>CSK Threat Intel Portal</span>
+        </div>
+        <div class="navbar-status">
+            <span class="status-dot"></span>
+            Backend: <span id="backend-status">Checking...</span>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="container">
+
+        <!-- STATS -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-number" id="stat-total">0</div>
+                <div class="stat-label">Total Alerts</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-number" id="stat-critical">0</div>
+                <div class="stat-label">Critical</div>
+            </div>
+            <div class="stat-card high">
+                <div class="stat-number" id="stat-high">0</div>
+                <div class="stat-label">High</div>
+            </div>
+            <div class="stat-card medium">
+                <div class="stat-number" id="stat-medium">0</div>
+                <div class="stat-label">Medium</div>
+            </div>
+            <div class="stat-card low">
+                <div class="stat-number" id="stat-low">0</div>
+                <div class="stat-label">Low</div>
+            </div>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls">
+            <input
+                type="text"
+                id="search-input"
+                class="search-box"
+                placeholder="🔍  Search alerts, CVEs, threat types..."
+            />
+            <select id="severity-filter" class="filter-select">
+                <option value="">All Severities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+                <option value="Unknown">Unknown</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadAlerts()">Search</button>
+            <button class="btn btn-crawl" onclick="triggerCrawl()">🕷️ Crawl CSK</button>
+        </div>
+
+        <!-- ALERTS LIST -->
+        <div id="alerts-container">
+            <div class="loading">Loading alerts...</div>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination" id="pagination"></div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <div class="modal-title" id="modal-title"></div>
+
+            <div class="modal-section">
+                <h4>Overview</h4>
+                <div class="alert-meta" id="modal-meta"></div>
+            </div>
+
+            <div class="modal-section">
+                <h4>Summary</h4>
+                <p id="modal-summary" style="font-size:0.9rem; line-height:1.6; color:#e6edf3;"></p>
+            </div>
+
+            <div class="modal-section" id="modal-cves-section">
+                <h4>CVEs</h4>
+                <div id="modal-cves"></div>
+            </div>
+
+            <div class="modal-section" id="modal-affected-section">
+                <h4>Affected Systems</h4>
+                <p id="modal-affected" style="font-size:0.85rem; color:#8b949e;"></p>
+            </div>
+
+            <div class="modal-section">
+                <h4>STIX 2.1 Bundle</h4>
+                <div class="stix-viewer" id="modal-stix">Loading...</div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; gap:10px;">
+                <button class="btn btn-primary" onclick="copyStix()">📋 Copy STIX</button>
+                <a id="modal-source-link" href="#" target="_blank">
+                    <button class="btn" style="background:#30363d; color:#e6edf3;">🔗 Source</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
